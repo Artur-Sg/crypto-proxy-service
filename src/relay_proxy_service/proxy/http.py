@@ -9,13 +9,13 @@ from dataclasses import dataclass
 from fastapi import Request, Response
 import logging
 
-from crypto_proxy_service.config import (
+from relay_proxy_service.config import (
     HOP_BY_HOP_HEADERS,
     Settings,
     build_upstream_url,
 )
 
-logger = logging.getLogger("crypto_proxy_service.proxy")
+logger = logging.getLogger("relay_proxy_service.proxy")
 
 
 @dataclass(slots=True)

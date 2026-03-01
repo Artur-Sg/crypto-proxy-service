@@ -1,4 +1,4 @@
-# crypto-proxy-service
+# relay-proxy-service
 
 Skeleton Python service that accepts HTTP and WebSocket requests and proxies them to one of the upstreams from environment configuration.
 
@@ -18,7 +18,7 @@ python -m pip install -e .
 ## Run
 ```bash
 source .venv/bin/activate
-uvicorn crypto_proxy_service.main:app --host 0.0.0.0 --port 8080 --reload
+uvicorn relay_proxy_service.main:app --host 0.0.0.0 --port 8080 --reload
 ```
 
 ## Routes
@@ -35,12 +35,12 @@ Run two mock upstreams with different ports/names:
 
 ```bash
 source .venv/bin/activate
-MOCK_NAME=upstream-1 uvicorn crypto_proxy_service.mock_upstream:app --host 0.0.0.0 --port 9000 --reload
+MOCK_NAME=upstream-1 uvicorn relay_proxy_service.mock_upstream:app --host 0.0.0.0 --port 9000 --reload
 ```
 
 ```bash
 source .venv/bin/activate
-MOCK_NAME=upstream-2 uvicorn crypto_proxy_service.mock_upstream:app --host 0.0.0.0 --port 9001 --reload
+MOCK_NAME=upstream-2 uvicorn relay_proxy_service.mock_upstream:app --host 0.0.0.0 --port 9001 --reload
 ```
 
 Then set `.env`:

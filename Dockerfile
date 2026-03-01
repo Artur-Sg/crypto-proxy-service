@@ -23,4 +23,4 @@ USER appuser
 
 EXPOSE 8080
 
-CMD ["uvicorn", "crypto_proxy_service.main:app", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["uvicorn", "relay_proxy_service.main:app", "--host", "0.0.0.0", "--port", "8080"]

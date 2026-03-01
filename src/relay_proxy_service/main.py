@@ -10,10 +10,10 @@ from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 from http import HTTPStatus
 import logging
 
-from crypto_proxy_service.config import Settings, UpstreamPicker, load_settings
-from crypto_proxy_service.metrics import HTTP_ERRORS_TOTAL, HTTP_RESPONSE_TIME_SECONDS
-from crypto_proxy_service.proxy.http import ProxyResult, proxy_http_request
-from crypto_proxy_service.proxy.ws import proxy_ws_request
+from relay_proxy_service.config import Settings, UpstreamPicker, load_settings
+from relay_proxy_service.metrics import HTTP_ERRORS_TOTAL, HTTP_RESPONSE_TIME_SECONDS
+from relay_proxy_service.proxy.http import ProxyResult, proxy_http_request
+from relay_proxy_service.proxy.ws import proxy_ws_request
 
 
 settings = load_settings()
@@ -116,7 +116,7 @@ async def ws_proxy(path: str, websocket: WebSocket):
 
 
 def run() -> None:
-    uvicorn.run("crypto_proxy_service.main:app", host="0.0.0.0", port=8080, reload=True)
+    uvicorn.run("relay_proxy_service.main:app", host="0.0.0.0", port=8080, reload=True)
 
 
 if __name__ == "__main__":

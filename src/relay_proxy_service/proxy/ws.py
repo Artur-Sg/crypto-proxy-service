@@ -6,9 +6,9 @@ import logging
 import websockets
 from fastapi import WebSocket
 
-from crypto_proxy_service.config import Settings, build_upstream_ws_url
+from relay_proxy_service.config import Settings, build_upstream_ws_url
 
-logger = logging.getLogger("crypto_proxy_service.proxy_ws")
+logger = logging.getLogger("relay_proxy_service.proxy_ws")
 
 
 async def _relay_ws(
