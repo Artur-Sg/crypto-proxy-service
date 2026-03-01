@@ -25,6 +25,11 @@ def _filter_headers(headers: Iterable[tuple[str, str]]) -> dict[str, str]:
     return filtered
 
 
+def _filter_response_headers(headers: Iterable[tuple[str, str]]) -> dict[str, str]:
+    filtered = _filter_headers(headers)
+    return {key: value for key, value in filtered.items() if key.lower() != "content-length"}
+
+
 async def proxy_http_request(
     request: Request,
     upstreams: list[str],
@@ -60,7 +65,7 @@ async def proxy_http_request(
 
             last_response = upstream_response
             if upstream_response.status_code == 200:
-                response_headers = _filter_headers(upstream_response.headers.items())
+                response_headers = _filter_response_headers(upstream_response.headers.items())
                 return Response(
                     content=upstream_response.content,
                     status_code=upstream_response.status_code,
