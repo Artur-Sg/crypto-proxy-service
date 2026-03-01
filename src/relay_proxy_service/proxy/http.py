@@ -37,7 +37,11 @@ def _filter_headers(headers: Iterable[tuple[str, str]]) -> dict[str, str]:
 
 def _filter_response_headers(headers: Iterable[tuple[str, str]]) -> dict[str, str]:
     filtered = _filter_headers(headers)
-    return {key: value for key, value in filtered.items() if key.lower() != "content-length"}
+    return {
+        key: value
+        for key, value in filtered.items()
+        if key.lower() not in {"content-length", "content-encoding"}
+    }
 
 
 async def proxy_http_request(
@@ -74,6 +78,8 @@ async def proxy_http_request(
             upstream_status=None,
         )
     headers = _filter_headers(request.headers.items())
+    # Avoid compressed upstream payloads to prevent double-decode/header mismatch issues.
+    headers["accept-encoding"] = "identity"
 
     last_response: httpx.Response | None = None
     for upstream_base in upstreams:

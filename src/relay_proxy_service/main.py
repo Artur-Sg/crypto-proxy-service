@@ -169,8 +169,7 @@ async def http_proxy(path: str, request: Request):
     return result.response
 
 
-@app.websocket("/{path:path}")
-async def ws_proxy(path: str, websocket: WebSocket):
+async def _handle_ws_proxy(path: str, websocket: WebSocket) -> None:
     if "ws" not in settings.enabled_protocols:
         await websocket.close(code=1011, reason="WS disabled")
         return
@@ -181,6 +180,23 @@ async def ws_proxy(path: str, websocket: WebSocket):
     ordered = [first] + [u for u in ws_upstreams if u != first]
     full_path = f"/{path}"
     await proxy_ws_request(websocket, ordered, full_path, websocket.url.query or None, settings)
+
+
+@app.websocket("/ws")
+async def ws_proxy_root(websocket: WebSocket) -> None:
+    # Support clients that call "/ws" without trailing slash.
+    await _handle_ws_proxy("", websocket)
+
+
+@app.websocket("/")
+async def ws_proxy_plain_root(websocket: WebSocket) -> None:
+    # Support clients that call WebSocket on root path.
+    await _handle_ws_proxy("", websocket)
+
+
+@app.websocket("/ws/{path:path}")
+async def ws_proxy(path: str, websocket: WebSocket) -> None:
+    await _handle_ws_proxy(path, websocket)
 
 
 def run() -> None:
