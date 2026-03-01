@@ -7,6 +7,7 @@ Skeleton Python service that accepts HTTP and WebSocket requests and proxies the
 
 ## Setup
 1. Create `.env` from `.env.example` and adjust `UPSTREAMS` (and `WS_UPSTREAMS` if needed).
+   - Use `PROTOCOLS=http,ws` to control which protocols are enabled.
 2. Install dependencies.
 
 ```bash
@@ -23,46 +24,18 @@ uvicorn relay_proxy_service.main:app --host 0.0.0.0 --port 8080 --reload
 
 ## Routes
 - HTTP: `/{path}` (all methods)
-- WebSocket: `/ws/{path}`
+- WebSocket: `/{path}`
 - Metrics: `/metrics`
+- Liveness: `/livez`
+- Readiness: `/readyz`
+- Health summary: `/healthz`
+
+## Health checks
+`/livez` is always OK if the process is running. `/readyz` turns to 503 if there was no successful proxied HTTP request in the last `HEALTH_WINDOW_SECONDS` (default 60s), and also checks that enabled protocols have upstreams configured. `/healthz` returns a summary.
 
 ## Notes
 - Hop-by-hop headers are filtered.
 - WebSocket proxying is basic; add auth, timeouts, and better error handling as needed.
-
-## Local mock upstreams
-Run two mock upstreams with different ports/names:
-
-```bash
-source .venv/bin/activate
-MOCK_NAME=upstream-1 uvicorn relay_proxy_service.mock_upstream:app --host 0.0.0.0 --port 9000 --reload
-```
-
-```bash
-source .venv/bin/activate
-MOCK_NAME=upstream-2 uvicorn relay_proxy_service.mock_upstream:app --host 0.0.0.0 --port 9001 --reload
-```
-
-Then set `.env`:
-```
-UPSTREAMS=http://localhost:9000,http://localhost:9001
-UPSTREAM_STRATEGY=round_robin
-```
-
-Example requests:
-```bash
-curl -i http://localhost:8080/health
-```
-
-```bash
-curl -i 'http://localhost:8080/prices?symbol=ETHUSDT&limit=3'
-```
-
-```bash
-curl -i -X POST http://localhost:8080/orders \
-  -H 'Content-Type: application/json' \
-  -d '{"symbol":"BTCUSDT","side":"buy","qty":0.1,"price":68000}'
-```
 
 ## Real upstream example (Polygon Amoy)
 Configure `.env` to use real upstreams:

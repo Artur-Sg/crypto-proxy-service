@@ -30,6 +30,8 @@ class Settings:
     connect_timeout: float
     read_timeout: float
     max_body_bytes: int
+    health_window_seconds: float
+    enabled_protocols: set[str]
 
 
 def _parse_upstreams(value: str) -> list[str]:
@@ -39,18 +41,24 @@ def _parse_upstreams(value: str) -> list[str]:
 
 def load_settings() -> Settings:
     load_dotenv()
+    protocols_raw = os.getenv("PROTOCOLS", "http,ws")
+    enabled_protocols = {item.strip().lower() for item in protocols_raw.split(",") if item.strip()}
+    if not enabled_protocols:
+        enabled_protocols = {"http", "ws"}
+
     http_upstreams_raw = os.getenv("UPSTREAMS", "")
-    http_upstreams = _parse_upstreams(http_upstreams_raw)
-    if not http_upstreams:
+    http_upstreams = _parse_upstreams(http_upstreams_raw) if "http" in enabled_protocols else []
+    if "http" in enabled_protocols and not http_upstreams:
         http_upstreams = ["http://localhost:9000"]
 
     ws_upstreams_raw = os.getenv("WS_UPSTREAMS", "")
-    ws_upstreams = _parse_upstreams(ws_upstreams_raw)
+    ws_upstreams = _parse_upstreams(ws_upstreams_raw) if "ws" in enabled_protocols else []
 
     strategy = os.getenv("UPSTREAM_STRATEGY", "random").lower()
     connect_timeout = float(os.getenv("CONNECT_TIMEOUT", "5"))
     read_timeout = float(os.getenv("READ_TIMEOUT", "30"))
     max_body_bytes = int(os.getenv("MAX_BODY_BYTES", str(5 * 1024 * 1024)))
+    health_window_seconds = float(os.getenv("HEALTH_WINDOW_SECONDS", "60"))
 
     return Settings(
         http_upstreams=http_upstreams,
@@ -59,6 +67,8 @@ def load_settings() -> Settings:
         connect_timeout=connect_timeout,
         read_timeout=read_timeout,
         max_body_bytes=max_body_bytes,
+        health_window_seconds=health_window_seconds,
+        enabled_protocols=enabled_protocols,
     )
 
 
